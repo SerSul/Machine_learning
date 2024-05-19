@@ -4,7 +4,10 @@ import numpy as np
 class MyLineReg:
     def __init__(self, n_iter=100, learning_rate=0.1, weights=None, metric=None, reg=None, l1_coef=0, l2_coef=0):
         self.n_iter = n_iter
-        self.learning_rate = learning_rate
+        if callable(learning_rate):
+            self.learning_rate_func = learning_rate
+        else:
+            self.learning_rate_func = lambda _: learning_rate
         self.weights = weights
         if metric is None or metric in ['mae', 'mse', 'rmse', 'mape', 'r2']:
             self.metric = metric
@@ -33,7 +36,8 @@ class MyLineReg:
             gradient = -2 * X.T.dot(errors) / X.shape[0]
 
             gradient += self._calculate_grad()
-            self.weights -= self.learning_rate * gradient
+            learning_rate = self.learning_rate_func(i + 1)
+            self.weights -= learning_rate * gradient
 
             if verbose and (i + 1) % verbose == 0:
                 loss = self._calculate_loss(y, y_pred)
@@ -56,15 +60,15 @@ class MyLineReg:
         return base_loss + reg_loss
 
     def _calculate_metric(self, y, y_pred):
-        if self.metric == 'mae':
+        if self.metric == 'mae': # Mean Absolute Error - средняя абсолютная ошибка
             return np.mean(np.abs(y - y_pred))
-        elif self.metric == 'mse':
+        elif self.metric == 'mse': # Mean Squared Error - средняя квадратичная ошибка
             return np.mean((y - y_pred) ** 2)
-        elif self.metric == 'rmse':
+        elif self.metric == 'rmse': # Root Mean Squared Error - корень из средней квадратичной ошибки
             return np.sqrt(np.mean((y - y_pred) ** 2))
-        elif self.metric == 'mape':
+        elif self.metric == 'mape': # Mean Absolute Percentage Error - средняя абсолютная процентная ошибка
             return np.mean(np.abs((y - y_pred) / y)) * 100
-        elif self.metric == 'r2':
+        elif self.metric == 'r2': # R^2 - коэффициент детерминации
             ss_res = np.sum((y - y_pred) ** 2)
             ss_tot = np.sum((y - np.mean(y)) ** 2)
             return 1 - (ss_res / ss_tot)
@@ -98,8 +102,8 @@ features = np.array([
     [24, 33],
 ])
 
-target = np.array([3, 5])
+target = np.array([3, 2])
 
-model = MyLineReg(n_iter=10000, learning_rate=0.00001, metric='mse', reg='elasticnet', l1_coef=0.5, l2_coef=0.5)
+model = MyLineReg(n_iter=1000000, learning_rate=0.1, metric='mape', reg='elasticnet', l1_coef=0.5, l2_coef=0.5)
 model.fit(features, target, verbose=1000)
-print(model.get_coef())
+print(model.predict(features))
