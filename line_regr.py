@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 
 class MyLineReg:
@@ -6,6 +7,7 @@ class MyLineReg:
     Класс для линейной регрессии с поддержкой регуляризации.
 
     """
+
     def __init__(self, n_iter=100, learning_rate=0.1, weights=None, metric=None, reg=None, l1_coef=0, l2_coef=0):
         """
         :param n_iter: количество итераций обучения
@@ -73,15 +75,15 @@ class MyLineReg:
         return base_loss + reg_loss
 
     def _calculate_metric(self, y, y_pred):
-        if self.metric == 'mae': # Mean Absolute Error - средняя абсолютная ошибка, считает модуль разности между предсказанным и реальным значением
+        if self.metric == 'mae':  # Mean Absolute Error - средняя абсолютная ошибка, считает модуль разности между предсказанным и реальным значением
             return np.mean(np.abs(y - y_pred))
-        elif self.metric == 'mse': # Mean Squared Error - средняя квадратичная ошибка, считает квадрат разности между предсказанным и реальным значением
+        elif self.metric == 'mse':  # Mean Squared Error - средняя квадратичная ошибка, считает квадрат разности между предсказанным и реальным значением
             return np.mean((y - y_pred) ** 2)
-        elif self.metric == 'rmse': # Root Mean Squared Error - корень из средней квадратичной ошибки, считает корень из средней квадратичной ошибки
+        elif self.metric == 'rmse':  # Root Mean Squared Error - корень из средней квадратичной ошибки, считает корень из средней квадратичной ошибки
             return np.sqrt(np.mean((y - y_pred) ** 2))
-        elif self.metric == 'mape': # Mean Absolute Percentage Error - средняя абсолютная процентная ошибка, считает среднюю абсолютную процентную ошибку
+        elif self.metric == 'mape':  # Mean Absolute Percentage Error - средняя абсолютная процентная ошибка, считает среднюю абсолютную процентную ошибку
             return np.mean(np.abs((y - y_pred) / y)) * 100
-        elif self.metric == 'r2': # R^2 - коэффициент детерминации, считает отношение суммы квадратов ошибок к общей сумме квадратов
+        elif self.metric == 'r2':  # R^2 - коэффициент детерминации, считает отношение суммы квадратов ошибок к общей сумме квадратов
             ss_res = np.sum((y - y_pred) ** 2)
             ss_tot = np.sum((y - np.mean(y)) ** 2)
             return 1 - (ss_res / ss_tot)
@@ -90,21 +92,23 @@ class MyLineReg:
         return self.final_metric
 
     def _calculate_reg(self):
-        if self.reg == 'l1': # L1-регуляризация, добавляет к функции потерь сумму модулей весов
+        if self.reg == 'l1':  # L1-регуляризация, добавляет к функции потерь сумму модулей весов
             return self.l1_coef * np.sum(np.abs(self.weights))
-        elif self.reg == 'l2': # L2-регуляризация, добавляет к функции потерь сумму квадратов весов
+        elif self.reg == 'l2':  # L2-регуляризация, добавляет к функции потерь сумму квадратов весов
             return self.l2_coef * np.sum(self.weights ** 2)
-        elif self.reg == 'elasticnet': # ElasticNet-регуляризация, добавляет к функции потерь сумму модулей и квадратов весов
+        elif self.reg == 'elasticnet':  # ElasticNet-регуляризация, добавляет к функции потерь сумму модулей и
+            # квадратов весов
             return self.l1_coef * np.sum(np.abs(self.weights[1:])) + self.l2_coef * np.sum(self.weights ** 2)
         else:
             return 0
 
     def _calculate_grad(self):
-        if self.reg == 'l1': # L1-регуляризация, добавляет к градиенту сумму знаков весов
+        if self.reg == 'l1':  # L1-регуляризация, добавляет к градиенту сумму знаков весов
             return self.l1_coef * np.sign(self.weights)
-        elif self.reg == 'l2': # L2-регуляризация, добавляет к градиенту удвоенную сумму весов
+        elif self.reg == 'l2':  # L2-регуляризация, добавляет к градиенту удвоенную сумму весов
             return 2 * self.l2_coef * self.weights
-        elif self.reg == 'elasticnet': # ElasticNet-регуляризация, добавляет к градиенту сумму знаков весов и удвоенную сумму весов
+        elif self.reg == 'elasticnet':  # ElasticNet-регуляризация, добавляет к градиенту сумму знаков весов и
+            # удвоенную сумму весов
             return self.l1_coef * np.sign(self.weights) + 2 * self.l2_coef * self.weights
         else:
             return 0
@@ -115,11 +119,11 @@ features = np.array([
     [2, 3],
 ])
 
-target = np.array([35, 2])
-
+target = np.array([10, 7])
 
 learning_rate_lambda = lambda epoch: 0.1 / (1 + epoch * 0.01)
 
-model = MyLineReg(n_iter=100000,  metric='mape', reg='elasticnet', l1_coef=0.5, l2_coef=0.5, learning_rate=learning_rate_lambda)
+model = MyLineReg(n_iter=10000, metric='mape', reg='elasticnet', l1_coef=0.5, l2_coef=0.5,
+                  learning_rate=0.001)
 model.fit(features, target, verbose=True)
 print(model.predict(features))
