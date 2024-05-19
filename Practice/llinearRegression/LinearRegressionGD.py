@@ -1,7 +1,4 @@
 import numpy as np
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_percentage_error
-
-import numpy as np
 
 
 class LinearRegressionGD:
@@ -32,10 +29,8 @@ class LinearRegressionGD:
     def predict(self, X):
         n_samples = X.shape[0]
 
-        # Standardize features (zero mean, unit variance)
         X = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
 
-        # Add intercept to X
         X = np.c_[np.ones(n_samples), X]
 
         return np.dot(X, self.weights)
