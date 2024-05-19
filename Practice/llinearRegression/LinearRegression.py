@@ -1,7 +1,9 @@
 import numpy as np
 
+
 class LinearRegression:
     """ Линейная регрессия методом наименьших квадратов"""
+
     def __init__(self, coefficients=None):
         self.coefficients = coefficients
 
@@ -12,8 +14,8 @@ class LinearRegression:
         @:param y: целевая переменная
         """
         X_b = np.c_[np.ones((X.shape[0], 1)), X]
-
-        self.coefficients = np.linalg.pinv(X_b.T.dot(X_b)).dot(X_b.T.dot(y)) # МНК
+        self.coefficients = np.linalg.pinv(X_b.T.dot(X_b)).dot(X_b.T.dot(y))
+        print(self.coefficients)
 
     def predict(self, X):
         """
